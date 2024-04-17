@@ -1,34 +1,53 @@
-import React, { useRef } from "react";
-import { firestore } from "../firebase";
-import { addDoc, collection } from "firebase/firestore";
+import React, { useState } from 'react';
+import { auth } from '../firebase'; // Import Firebase authentication module
 
-export default function Home() {
-  const messageRef = useRef();
-  const ref = collection(firestore,"messages");
+const Auth = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
+    const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    console.log(messageRef.current.value);
-
-    let data = {
-      message: messageRef.current.value,
+    const handleAuthAction = async (event) => {
+        event.preventDefault();
+        try {
+            if (isSignUp) {
+                await auth.createUserWithEmailAndPassword(email, password);
+                // Handle successful sign-up, redirect user or update UI
+            } else {
+                await auth.signInWithEmailAndPassword(email, password);
+                // Handle successful sign-in, redirect user or update UI
+            }
+        } catch (error) {
+            setError(error.message);
+        }
     };
 
-    try {
-      await addDoc(ref, data);
-      console.log("Document successfully written!");
-    } catch (error) {
-      console.error("Error writing document: ", error);
-    }
-  };
+    return (
+        <div>
+            <h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
+            <form onSubmit={handleAuthAction}>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
+            </form>
+            <button onClick={() => setIsSignUp(!isSignUp)}>
+                {isSignUp ? 'Already have an account? Sign In' : 'Don\'t have an account? Sign Up'}
+            </button>
+            {error && <p>{error}</p>}
+        </div>
+    );
+};
 
-  return (
-    <div>
-      <form onSubmit={handleSave}>
-        <label>Enter Message:</label>
-        <input type="text" ref={messageRef} />
-        <button type='submit' className='btn btn-primary'>Save</button>
-      </form>
-    </div>
-  );
-}
+export default Auth;

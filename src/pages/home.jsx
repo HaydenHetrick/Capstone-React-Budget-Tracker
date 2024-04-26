@@ -1,5 +1,19 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase'; // Import Firebase authentication module
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDYqVP3DhQcJ2E9H0mS--XBA5yt7Ik63co",
+  authDomain: "balance-planner-209a1.firebaseapp.com",
+  projectId: "balance-planner-209a1",
+  storageBucket: "balance-planner-209a1.appspot.com",
+  messagingSenderId: "396613752149",
+  appId: "1:396613752149:web:ac0ec1a860f4f075308bdc",
+  measurementId: "G-H1QRZV4PZ7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const Auth = () => {
     const [email, setEmail] = useState('');
@@ -11,10 +25,10 @@ const Auth = () => {
         event.preventDefault();
         try {
             if (isSignUp) {
-                await auth.createUserWithEmailAndPassword(email, password);
+                await createUserWithEmailAndPassword(auth, email, password);
                 // Handle successful sign-up, redirect user or update UI
             } else {
-                await auth.signInWithEmailAndPassword(email, password);
+                await signInWithEmailAndPassword(auth, email, password);
                 // Handle successful sign-in, redirect user or update UI
             }
         } catch (error) {
